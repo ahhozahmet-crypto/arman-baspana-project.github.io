@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Арман баспана қоғамдық қоры</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -140,26 +138,7 @@
             font-size: 45px;
         }
 
-        /* ABOUT */
-        .about {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-
-        .about img {
-            width: 100%;
-            border-radius: 30px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-        }
-
-        .about-text {
-            font-size: 18px;
-            line-height: 2;
-        }
-
-        /* STATS */
+        /* STATS (Updated Styling) */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -167,21 +146,24 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #00cfc6, #00b8b0);
-            color: white;
+            background: #ffffff;
+            color: #222;
             padding: 45px;
             border-radius: 35px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0, 184, 176, 0.25);
+            box-shadow: 0 10px 40px rgba(0, 184, 176, 0.1);
+            border-bottom: 6px solid #00cfc6;
         }
 
         .stat-card h3 {
             margin-bottom: 15px;
-            font-size: 22px;
+            font-size: 20px;
+            color: #666;
         }
 
         .stat-card h1 {
             font-size: 50px;
+            color: #00b8b0;
         }
 
         /* REGISTER / QUEUE */
@@ -220,7 +202,6 @@
             transform: scale(1.05);
         }
 
-        /* CONTACTS */
         .contacts {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -266,7 +247,7 @@
 
         @media(max-width: 900px) {
             nav { display: none; }
-            .hero-content h1 { font-size: 45px; }
+            .hero-content h1 { font-size: 40px; }
             .about, .contacts { grid-template-columns: 1fr; }
             .queue h1 { font-size: 55px; }
         }
@@ -280,7 +261,6 @@
     </div>
     <nav>
         <a href="#">Басты бет</a>
-        <a href="#about">Біз туралы</a>
         <a href="#stats">Садақа</a>
         <a href="#contacts">Контакты</a>
     </nav>
@@ -301,20 +281,6 @@
     </div>
 </section>
 
-<section id="about">
-    <div class="section-title">
-        <h2>Біз туралы</h2>
-    </div>
-    <div class="about">
-        <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=1200&auto=format&fit=crop">
-        <div class="about-text">
-            <p>Арман баспана қоғамдық қоры еліміздегі әрбір баспанасы жоқ отбасыға баспана алуға қолдау көрсету мақсатында құрылған.</p>
-            <br>
-            <p>Мақсаты: жетім-жесірлерге, жағдайы төмен отбасыларға көмек беру.</p>
-        </div>
-    </div>
-</section>
-
 <section id="stats">
     <div class="section-title">
         <h2>Статистика</h2>
@@ -323,10 +289,10 @@
         <div class="stat-card">
             <h3>Жиналған қаражат</h3>
             <h1 id="moneyCounter">0 ₸</h1>
-            <p style="font-size: 14px; margin-top: 10px;">(Kaspi төлемдері ескерілген)</p>
+            <p style="font-size: 14px; margin-top: 10px; color: #888;">(Төлемдер автоматты түрде қосылады)</p>
         </div>
         <div class="stat-card">
-            <h3>Тіркелген адамдар</h3>
+            <h3>Тіркелген халық саны</h3>
             <h1 id="peopleCounter">0</h1>
         </div>
     </div>
@@ -334,7 +300,7 @@
 
 <section id="register">
     <div class="queue">
-        <h2>Тіркелген халық саны </h2>
+        <h2>Сіздің кезек нөміріңіз:</h2>
         <h1 id="queueNumber">№ 0</h1>
         <button class="join-btn" onclick="joinPeople()">
             Үй кезегіне өтініш беру
@@ -372,22 +338,31 @@
 </footer>
 
 <script>
-    // Бастапқы мәндер (осы жерді өзгертуге болады)
-    let people = 0;
-    let money = 0;
+    // Браузер жадынан деректерді алу (егер жоқ болса 0 қояды)
+    let people = parseInt(localStorage.getItem('savedPeople')) || 0;
+    let money = parseInt(localStorage.getItem('savedMoney')) || 0;
 
-    // Кезекті жаңарту функциясы
+    // Бет жүктелгенде экранға шығару
+    window.onload = updateUI;
+
     function joinPeople() {
         people++;
-        updateUI();
+        saveData(); // Сақтау
+        updateUI(); // Жаңарту
         alert("Сіздің өтінішіңіз қабылданды! Кезек нөміріңіз: №" + people);
     }
 
-    // Төлем жасалғанын имитациялау (Демонстрация үшін)
     function simulatePayment() {
-        // Каспийге өткенде соманы автоматты түрде қосу (мысалы 100 тг)
+        // Каспийге өткенде 100 теңге қосылады (сақталады)
         money += 100;
+        saveData();
         updateUI();
+    }
+
+    // Деректерді браузердің жадына (localStorage) жазу
+    function saveData() {
+        localStorage.setItem('savedPeople', people);
+        localStorage.setItem('savedMoney', money);
     }
 
     // Экрандағы мәліметтерді жаңарту
