@@ -55,9 +55,7 @@
             transition: 0.3s;
         }
 
-        nav a:hover {
-            color: #00b8b0;
-        }
+        nav a:hover { color: #00b8b0; }
 
         /* HERO */
         .hero {
@@ -74,16 +72,8 @@
             padding: 140px 8% 60px;
         }
 
-        .hero-content {
-            max-width: 800px;
-            color: white;
-        }
-
-        .hero-content h1 {
-            font-size: 60px;
-            margin-bottom: 25px;
-            font-weight: 800;
-        }
+        .hero-content { max-width: 800px; color: white; }
+        .hero-content h1 { font-size: 60px; margin-bottom: 25px; font-weight: 800; }
 
         .btns {
             display: flex;
@@ -109,19 +99,10 @@
             box-shadow: 0 10px 30px rgba(0, 207, 198, 0.3);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-5px);
-            background: #00b8b0;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #00b8b0;
-        }
+        .btn-secondary { background: white; color: #00b8b0; }
 
         /* STATS */
         section { padding: 80px 8%; }
-
         .section-title { text-align: center; margin-bottom: 50px; }
         .section-title h2 { color: #00b8b0; font-size: 40px; }
 
@@ -151,7 +132,7 @@
             color: white;
         }
 
-        .queue h1 { font-size: 70px; margin: 20px 0; }
+        .queue h1 { font-size: 80px; margin: 20px 0; }
 
         .join-btn {
             padding: 20px 50px;
@@ -165,9 +146,16 @@
             transition: 0.3s;
         }
 
-        .join-btn:hover { transform: scale(1.05); }
+        .join-btn:disabled {
+            background: #e0e0e0;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-        /* CONTACTS & SOCIALS */
+        .join-btn:hover:not(:disabled) { transform: scale(1.05); }
+
+        /* CONTACTS */
         .contacts {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -194,7 +182,6 @@
             color: white;
             text-decoration: none;
             font-weight: 700;
-            font-size: 14px;
             transition: 0.3s;
         }
 
@@ -202,14 +189,7 @@
         .tt { background: #000000; }
         .wa { background: #25D366; }
 
-        .socials a:hover { opacity: 0.8; transform: translateY(-3px); }
-
-        footer {
-            background: #00b8b0;
-            color: white;
-            text-align: center;
-            padding: 30px;
-        }
+        footer { background: #00b8b0; color: white; text-align: center; padding: 30px; }
 
         @media(max-width: 900px) {
             .hero-content h1 { font-size: 35px; }
@@ -256,9 +236,9 @@
 
 <section id="register">
     <div class="queue">
-        <h2>Тіркелген халық саны:</h2>
+        <h2 id="queueTitle">Тіркелген халық саны:</h2>
         <h1 id="queueNumber">№ 0</h1>
-        <button class="join-btn" onclick="joinAndWhatsApp()">Үй кезегіне өтініш беру</button>
+        <button id="mainJoinBtn" class="join-btn" onclick="joinAndWhatsApp()">Үй кезегіне өтініш беру</button>
     </div>
 </section>
 
@@ -268,7 +248,7 @@
         <div class="contact-box">
             <h3>Мекенжайымыз</h3>
             <p><b>Қор:</b> Арман баспана қоғамдық қоры</p>
-            <p><b>Мекенжай:</b> Алматы, Толе би 23а</p>
+            <p><b>Мекенжай:</b> Алматы, Мкрн Шугыла 340/36 к9</p>
             <p><b>Телефон:</b> 87079097258</p>
         </div>
         <div class="contact-box">
@@ -286,21 +266,26 @@
 <footer>© 2026 Арман баспана қоғамдық қоры</footer>
 
 <script>
-    // Браузер жадынан деректерді жүктеу
+    // Мәліметтерді жадыдан алу
     let people = parseInt(localStorage.getItem('savedPeople')) || 0;
     let money = parseInt(localStorage.getItem('savedMoney')) || 0;
+    let hasJoined = localStorage.getItem('userHasJoined') === 'true'; // Тіркелгенін тексеру
 
     window.onload = updateUI;
 
     function joinAndWhatsApp() {
+        if (hasJoined) return; // Егер тіркеліп қойса, жұмыс істемейді
+
         people++;
+        hasJoined = true;
+        
         saveData();
         updateUI();
         
         let message = "Сәламатсыз ба! Мен үй кезегіне өтініш бергім келеді. Менің кезек нөмірім: №" + people;
-        let url = "https://wa.me/7079097258?text=" + encodeURIComponent(message);
+        let url = "https://wa.me/87079097258?text=" + encodeURIComponent(message);
         
-        setTimeout(() => { window.location.href = url; }, 800);
+        setTimeout(() => { window.location.href = url; }, 500);
     }
 
     function simulatePayment() {
@@ -312,12 +297,21 @@
     function saveData() {
         localStorage.setItem('savedPeople', people);
         localStorage.setItem('savedMoney', money);
+        localStorage.setItem('userHasJoined', hasJoined);
     }
 
     function updateUI() {
         document.getElementById("peopleCounter").innerText = people;
         document.getElementById("moneyCounter").innerText = money.toLocaleString() + " ₸";
         document.getElementById("queueNumber").innerText = "№ " + people;
+
+        // Егер адам тіркеліп қойса, батырманы өзгерту
+        if (hasJoined) {
+            const btn = document.getElementById("mainJoinBtn");
+            btn.innerText = "Сіз тіркелдіңіз";
+            btn.disabled = true;
+            document.getElementById("queueTitle").innerText = "Сіздің кезек нөміріңіз:";
+        }
     }
 </script>
 
